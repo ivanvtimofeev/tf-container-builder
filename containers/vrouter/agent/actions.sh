@@ -487,3 +487,41 @@ function resume_container() {
     fi
     echo "yes" > pause_container_pipe
 }
+
+function collect_host_data() {
+    RESULTFILE=${RESULTFILE:-'/var/run/hostdata'}
+
+    declare -A config
+
+    config["vrouter_cidr"]=$vrouter_cidr
+    config["vrouter_ip"]=$vrouter_ip
+    config["vrouter_gateway"]=$vrouter_gateway
+    config["agent_name"]=$agent_name
+    config["service_name"]=$SERVICE_NAME
+    config["node_type"]=$NODE_TYPE
+    config["pci_address"]=$pci_address
+    config["phys_int"]=$phys_int
+    config["phys_int_mac"]=$phys_int_mac
+    config["control_network_ip"]=$control_network_ip
+if [ "$CLOUD_ORCHESTRATOR" == "vcenter" ] && ! is_tsn; then
+    config["vmware_phys_int"]=$vmware_phys_int
+    config["vmware_mode"]=$vmware_mode
+fi
+
+if (( HUGE_PAGES_1GB > 0 )) ; then
+
+    config["huge_page_1G"]=$huge_page_1G
+elif (( HUGE_PAGES_2MB > 0 )) ; then
+    config["huge_page_2M"]=$huge_page_2M
+fi
+
+config["k8s_token"]=$K8S_TOKEN
+
+if [ -f $RESULTFILE ]; then
+  rm -f $RESULTFILE
+fi
+for key in ${!config[@]}; do
+  echo "$key=${config[$key]}" >> $RESULTFILE
+done
+
+}
