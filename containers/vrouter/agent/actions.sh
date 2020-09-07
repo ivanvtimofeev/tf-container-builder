@@ -3,9 +3,8 @@
 # or directly.
 # To run these functions, source agent_functions.sh and common.sh before
 
-# Preapare config for agent process and start the process. Return agent PID
-function run_agent {
-    echo "INFO: Start run_agent"
+function prepare_agent_config_vars {
+       echo "INFO: Start prepare_agent_config_vars"
 
     # TODO: avoid duplication of reading parameters with init_vhost0
     if ! is_dpdk ; then
@@ -209,6 +208,9 @@ EOM
 
     echo "INFO: Preparing /etc/contrail/contrail-vrouter-agent.conf"
     upgrade_old_logs "vrouter-agent"
+}
+
+function create_agent_config() {
     mkdir -p /etc/contrail
     cat << EOM > /etc/contrail/contrail-vrouter-agent.conf
 [CONTROL-NODE]
@@ -327,7 +329,9 @@ kubernetes_api_port=${KUBERNETES_API_PORT:-8080}
 kubernetes_api_secure_port=${KUBERNETES_API_SECURE_PORT:-6443}
 
 EOM
+}
 
+function start_agent() {
     # spin up vrouter-agent as a child process
     if [[ $# == "0" ]]; then
       echo "INFO: Use default vrouter agent to start"
@@ -356,7 +360,6 @@ EOM
 
     # Wait for vrouter-agent process to complete
     echo $vrouter_agent_process
-
 }
 
 # Setup kernel module and settins needed for start vhost0 network interface

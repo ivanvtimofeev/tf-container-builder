@@ -10,4 +10,8 @@ set_traps
 
 vhost0_init $@
 
-wait $(run_agent $@)
+prepare_agent_config_vars $@
+
+create_agent_config $@
+
+wait $(start_agent $@)
